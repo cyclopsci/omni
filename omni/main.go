@@ -5,7 +5,8 @@ import (
 )
 
 var (
-	platformBase = "/usr/lib/omni"
+	stateBase    = ".omni"
+	platformBase = ".omni/platforms"
 )
 
 func main() {
@@ -25,7 +26,7 @@ func main() {
 		cmdUpdate,
 	)
 
-	root.PersistentFlags().StringVarP(&platformBase, "platform-path", "p", "/usr/lib/omni", "Directory to store platform environments")
+	root.PersistentFlags().StringVarP(&platformBase, "platform-path", "p", ".omni/platforms", "Directory to store platform environments")
 
 	root.Execute()
 }

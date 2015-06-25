@@ -11,11 +11,13 @@ var cmdLs = &cobra.Command{
 	Use:   "ls",
 	Short: "List installed and available platform versions",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(platformBase)
-
-		platforms := omni.GetPlatforms()
+		platforms, _ := omni.GetPlatforms(platformBase)
 		for _, p := range platforms {
-			println(p.Label)
+			line := p.Label + ":"
+			for _, v := range p.Versions {
+				line += " " + v.Label
+			}
+			fmt.Println(line)
 		}
 	},
 }

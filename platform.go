@@ -1,7 +1,6 @@
 package omni
 
 import (
-	"fmt"
 	"os"
 	"path"
 )
@@ -14,6 +13,21 @@ type Version struct {
 type Platform struct {
 	Label    string
 	Versions []Version
+}
+
+func InstallPlatform(basePath string, platform string, version string) error {
+	switch platform {
+	case "puppet":
+		return InstallPuppet(basePath, version)
+	case "ansible":
+		return InstallAnsible(basePath, version)
+	}
+	return ErrInvalidPlatform
+}
+
+func Exit() error {
+	err := ExitRuby()
+	return err
 }
 
 func GetPlatforms(basePath string) ([]Platform, error) {
@@ -69,17 +83,4 @@ func discoverPlatformVersions(basePath string) ([]Version, error) {
 	}
 
 	return versions, nil
-}
-
-func InstallPlatform(basePath string, platform string, version string) {
-	var err error
-	switch platform {
-	case "puppet":
-		err = InstallPuppet(basePath, version)
-	case "ansible":
-		err = InstallAnsible(basePath, version)
-	}
-	if err != nil {
-		fmt.Println(err)
-	}
 }

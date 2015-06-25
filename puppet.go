@@ -52,8 +52,10 @@ gem 'puppet-lint', '~> 1.1.0'
 	return nil
 }
 
-func Deactivate() error {
-	err := ExitRuby()
-	err = ExitPython()
-	return err
+func EnterPuppet(basePath string, version string) error {
+	return EnterRuby(path.Join(basePath, "puppet", version))
+}
+
+func ExitPuppet() error {
+	return ExitRuby()
 }

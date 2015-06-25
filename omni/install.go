@@ -17,8 +17,12 @@ var cmdInstall = &cobra.Command{
 			cmd.Usage()
 			return
 		}
-		//TODO: validate p, v
-		omni.InstallPlatform(platformBase, args[0], args[1])
+		err = omni.InstallPlatform(platformBase, args[0], args[1])
+		if err != nil {
+			fmt.Println(err)
+			cmd.Usage()
+			return
+		}
 	},
 }
 

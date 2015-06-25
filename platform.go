@@ -1,6 +1,7 @@
 package omni
 
 import (
+	"fmt"
 	"os"
 	"path"
 )
@@ -26,12 +27,17 @@ func InstallPlatform(basePath string, platform string, version string) error {
 }
 
 func Run(basePath string, platform string, version string, command []string) error {
-	platformPath := path.Join(basePath, platform, version)
+	c := Context{
+		BasePath: path.Join(basePath, platform, version),
+	}
 	switch platform {
 	case "puppet":
-		return RunRuby(platformPath, command)
+		result, err := RunRuby(c, command)
+		fmt.Print(result)
+		return err
+	default:
+		return ErrInvalidPlatform
 	}
-	return ErrInvalidPlatform
 }
 
 func Exit() error {

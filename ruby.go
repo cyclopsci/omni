@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"syscall"
 )
 
 func verifyRubySupport() (string, error) {
@@ -31,15 +32,24 @@ func ExitRuby() error {
 	return nil
 }
 
-func RunRuby(basePath string, command []string) error {
+func RunRuby(c Context, command []string) (ExecResult, error) {
+	result := ExecResult{}
 	oldPath := os.Getenv("PATH")
-	fullPath := fmt.Sprintf("%s/bin:%s", basePath, oldPath)
+	fullPath := fmt.Sprintf("%s/bin:%s", c.BasePath, oldPath)
 	os.Setenv("PATH", fullPath)
 
 	run := exec.Command(command[0], command[1:]...)
-	run.Stdout = os.Stdout
-	run.Stderr = os.Stderr
+	run.Stdout = &result.Log
+	run.Stderr = &result.Log
 	run.Env = os.Environ()
 
-	return run.Run()
+	err := run.Run()
+	if msg, ok := err.(*exec.ExitError); ok {
+		result.ExitCode = msg.Sys().(syscall.WaitStatus).ExitStatus()
+		return result, err
+	} else {
+		//assuming all non-exit errors means everything is ok
+		result.ExitCode = 0
+		return result, nil
+	}
 }

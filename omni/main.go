@@ -7,6 +7,8 @@ import (
 var (
 	stateBase    = ".omni"
 	platformBase = ".omni/platforms"
+	format       = "text"
+	output       = ""
 )
 
 func main() {
@@ -27,6 +29,8 @@ func main() {
 	)
 
 	root.PersistentFlags().StringVarP(&platformBase, "platform-path", "p", ".omni/platforms", "Directory to store platform environments")
+	root.PersistentFlags().StringVarP(&format, "format", "f", "text", "Output format: [text|json]")
+	root.PersistentFlags().StringVarP(&output, "out-file", "o", "", "Write output to file in addition to STDOUT")
 
 	root.Execute()
 }

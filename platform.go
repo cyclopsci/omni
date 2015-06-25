@@ -27,12 +27,17 @@ func InstallPlatform(basePath string, platform string, version string) error {
 }
 
 func Run(basePath string, platform string, version string, command []string) error {
-	c := Context{
-		BasePath: path.Join(basePath, platform, version),
+	opts := ExecOptions{
+		Dir:     path.Join(basePath, platform, version),
+		Command: command[0],
 	}
+	if len(command) > 1 {
+		opts.Args = command[1:]
+	}
+
 	switch platform {
 	case "puppet":
-		result, err := RunRuby(c, command)
+		result, err := RunRuby(opts)
 		fmt.Print(result)
 		return err
 	default:

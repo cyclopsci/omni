@@ -17,5 +17,17 @@ func (e ExecResult) String() string {
 	return s
 }
 
+type ExecFormat string
+
+const (
+	FormatText ExecFormat = "text"
+	FormatJSON ExecFormat = "json"
+)
+
 type ExecOptions struct {
+	Command string
+	Args    []string
+	Dir     string
+	Output  string
+	Format  ExecFormat
 }

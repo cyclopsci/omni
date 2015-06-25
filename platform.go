@@ -25,6 +25,15 @@ func InstallPlatform(basePath string, platform string, version string) error {
 	return ErrInvalidPlatform
 }
 
+func Run(basePath string, platform string, version string, command []string) error {
+	platformPath := path.Join(basePath, platform, version)
+	switch platform {
+	case "puppet":
+		return RunRuby(platformPath, command)
+	}
+	return ErrInvalidPlatform
+}
+
 func Exit() error {
 	err := ExitRuby()
 	return err

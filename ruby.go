@@ -30,3 +30,16 @@ func ExitRuby() error {
 
 	return nil
 }
+
+func RunRuby(basePath string, command []string) error {
+	oldPath := os.Getenv("PATH")
+	fullPath := fmt.Sprintf("%s/bin:%s", basePath, oldPath)
+	os.Setenv("PATH", fullPath)
+
+	run := exec.Command(command[0], command[1:]...)
+	run.Stdout = os.Stdout
+	run.Stderr = os.Stderr
+	run.Env = os.Environ()
+
+	return run.Run()
+}

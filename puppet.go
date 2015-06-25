@@ -2,7 +2,6 @@ package omni
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -53,46 +52,8 @@ gem 'puppet-lint', '~> 1.1.0'
 	return nil
 }
 
-func InstallAnsible(basePath string, version string) error {
-	return nil
-}
-
-func verifyRubySupport() (string, error) {
-	return exec.LookPath("bundle")
-}
-
-func verifyPythonSupport() error {
-	if _, err := exec.LookPath("virtualenv"); err != nil {
-		return err
-	}
-	return nil
-}
-
-func EnterRuby(path string) {
-	orig := os.Getenv("PATH")
-	os.Setenv("OMNI_ORIG_PATH", orig)
-	fmt.Printf("export BUNDLE_GEMFILE=%s/Gemfile\n", path)
-	fmt.Printf("export PATH=%s/bin:$OMNI_ORIG_PATH\n", path)
-}
-
-func EnterPython(path string) {
-	fmt.Println(path)
-}
-
 func Deactivate() error {
 	err := ExitRuby()
 	err = ExitPython()
 	return err
-}
-
-func ExitRuby() error {
-	if present := os.Getenv("BUNDLE_GEMFILE"); present != "" {
-		return os.Unsetenv("BUNDLE_GEMFILE")
-	}
-	return nil
-}
-
-func ExitPython() error {
-	fmt.Println("exiting virtualenv")
-	return nil
 }

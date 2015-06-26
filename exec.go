@@ -1,44 +1,61 @@
 package omni
 
 import (
-	"bytes"
+	"encoding/json"
 	"fmt"
 	"path"
 )
 
 type ExecResult struct {
-	Log      bytes.Buffer
+	Platform string
+	Version  string
+	Log      string
 	ExitCode int
 }
 
 func (e ExecResult) String() string {
-	s := fmt.Sprintln(e.ExitCode)
-	s += fmt.Sprint(string(e.Log.Bytes()))
-	return s
+	return fmt.Sprint(e.Log)
 }
-
-type ExecFormat string
-
-const (
-	FormatText ExecFormat = "text"
-	FormatJSON ExecFormat = "json"
-)
 
 type ExecOptions struct {
 	Output string
-	Format ExecFormat
+	Format string
 }
 
 type ExecTask struct {
-	Dir     string
-	Command string
-	Args    []string
+	Platform string
+	Version  string
+	Dir      string
+	Command  string
+	Args     []string
 }
 
 func Exec(basePath string, platform string, version string, command []string, opts ExecOptions) error {
+	result, err := doExec(basePath, platform, version, command, opts)
+	if err != nil {
+		return err
+	}
+	return writeOutput([]ExecResult{result}, opts)
+}
+
+func ExecMultiple(basePath string, platform string, versions []string, command []string, opts ExecOptions) error {
+	results := []ExecResult{}
+	for _, version := range versions {
+		result, err := doExec(basePath, platform, version, command, opts)
+		if err != nil {
+			return err
+		}
+		results = append(results, result)
+	}
+	return writeOutput(results, opts)
+}
+
+func doExec(basePath string, platform string, version string, command []string, opts ExecOptions) (ExecResult, error) {
 	task := ExecTask{
-		Dir:     path.Join(basePath, platform, version),
-		Command: command[0],
+		Platform: platform,
+		Version:  version,
+		Dir:      path.Join(basePath, platform, version),
+		Command:  command[0],
 	}
 	if len(command) > 1 {
 		task.Args = command[1:]
@@ -46,19 +63,27 @@ func Exec(basePath string, platform string, version string, command []string, op
 
 	switch platform {
 	case "puppet":
-		result, err := ExecRuby(&task)
-		fmt.Print(result)
-		return err
+		return ExecRuby(&task), nil
 	default:
-		return ErrInvalidPlatform
+		return ExecResult{}, ErrInvalidPlatform
 	}
 }
 
-func ExecMultiple(basePath string, platform string, versions []string, command []string, opts ExecOptions) error {
-	for _, version := range versions {
-		if err := Exec(basePath, platform, version, command, opts); err != nil {
+func writeOutput(results []ExecResult, opts ExecOptions) error {
+	switch opts.Format {
+	case "json":
+		out, err := json.Marshal(results)
+		if err != nil {
 			return err
 		}
+		fmt.Println(string(out))
+	case "text":
+		for _, result := range results {
+			fmt.Print(result)
+		}
+		return nil
+	default:
+		return ErrInvalidFormat
 	}
 	return nil
 }

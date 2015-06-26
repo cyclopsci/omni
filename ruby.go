@@ -1,6 +1,7 @@
 package omni
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -32,24 +33,28 @@ func ExitRuby() error {
 	return nil
 }
 
-func ExecRuby(task *ExecTask) (ExecResult, error) {
-	result := ExecResult{}
+func ExecRuby(task *ExecTask) ExecResult {
+	result := ExecResult{
+		Platform: task.Platform,
+		Version:  task.Version,
+	}
 	oldPath := os.Getenv("PATH")
 	fullPath := fmt.Sprintf("%s/bin:%s", task.Dir, oldPath)
 	os.Setenv("PATH", fullPath)
 
 	run := exec.Command(task.Command, task.Args...)
-	run.Stdout = &result.Log
-	run.Stderr = &result.Log
+	var buf bytes.Buffer
+	run.Stdout = &buf
+	run.Stderr = &buf
 	run.Env = os.Environ()
 
 	err := run.Run()
 	if msg, ok := err.(*exec.ExitError); ok {
 		result.ExitCode = msg.Sys().(syscall.WaitStatus).ExitStatus()
-		return result, err
 	} else {
 		//assuming all non-exit errors means everything is ok
 		result.ExitCode = 0
-		return result, nil
 	}
+	result.Log = string(buf.Bytes())
+	return result
 }

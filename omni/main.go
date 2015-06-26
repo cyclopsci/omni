@@ -57,7 +57,8 @@ func main() {
 				return
 			}
 			opts := omni.ExecOptions{
-				Format: omni.FormatText,
+				Format: format,
+				Output: output,
 			}
 			versions := strings.Split(execVersion, ",")
 			if len(versions) > 1 {
@@ -126,7 +127,7 @@ func main() {
 
 	root.PersistentFlags().StringVarP(&platformBase, "platform-dir", "d", "~/.omni/platforms", "Directory to store platform environments")
 	root.PersistentFlags().StringVarP(&format, "format", "f", "text", "Output format: [text|json]")
-	root.PersistentFlags().StringVarP(&output, "out-file", "o", "", "Write output to file in addition to STDOUT")
+	root.PersistentFlags().StringVarP(&output, "out", "o", "", "Write output to file in addition to STDOUT")
 
 	root.Execute()
 }

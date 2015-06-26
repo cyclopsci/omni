@@ -19,8 +19,6 @@ func InstallPlatform(basePath string, platform string, version string) error {
 	switch platform {
 	case "puppet":
 		return InstallPuppet(basePath, version)
-	case "ansible":
-		return InstallAnsible(basePath, version)
 	}
 	return ErrInvalidPlatform
 }

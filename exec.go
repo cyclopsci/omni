@@ -25,12 +25,8 @@ const (
 )
 
 type ExecOptions struct {
-	BasePath string
-	Platform string
-	Version  string
-	Command  []string
-	Output   string
-	Format   ExecFormat
+	Output string
+	Format ExecFormat
 }
 
 type ExecTask struct {

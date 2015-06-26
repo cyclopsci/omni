@@ -1,0 +1,18 @@
+{
+	"ImportPath": "github.com/cyclopsci/omni/omni",
+	"GoVersion": "go1.4.2",
+	"Deps": [
+		{
+			"ImportPath": "github.com/inconshreveable/mousetrap",
+			"Rev": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
+		},
+		{
+			"ImportPath": "github.com/spf13/cobra",
+			"Rev": "8f5946caaeeff40a98d67f60c25e89c3525038a3"
+		},
+		{
+			"ImportPath": "github.com/spf13/pflag",
+			"Rev": "0ed81a961505a7dfaab5490049a7a324743e6f03"
+		}
+	]
+}

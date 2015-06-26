@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/cyclopsci/omni"
 	"github.com/spf13/cobra"
@@ -52,8 +53,18 @@ func main() {
 				cmd.Usage()
 				return
 			}
-			if err := omni.Run(platformBase, execPlatform, execVersion, args); err != nil {
-				fmt.Println(err)
+			opts := omni.ExecOptions{
+				Format: omni.FormatText,
+			}
+			versions := strings.Split(execVersion, ",")
+			if len(versions) > 1 {
+				if err := omni.ExecMultiple(platformBase, execPlatform, versions, args, opts); err != nil {
+					fmt.Println(err)
+				}
+			} else {
+				if err := omni.Exec(platformBase, execPlatform, versions[0], args, opts); err != nil {
+					fmt.Println(err)
+				}
 			}
 		},
 	}

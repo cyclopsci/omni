@@ -1,7 +1,6 @@
 package omni
 
 import (
-	"fmt"
 	"os"
 	"path"
 )
@@ -24,25 +23,6 @@ func InstallPlatform(basePath string, platform string, version string) error {
 		return InstallAnsible(basePath, version)
 	}
 	return ErrInvalidPlatform
-}
-
-func Run(basePath string, platform string, version string, command []string) error {
-	opts := ExecOptions{
-		Dir:     path.Join(basePath, platform, version),
-		Command: command[0],
-	}
-	if len(command) > 1 {
-		opts.Args = command[1:]
-	}
-
-	switch platform {
-	case "puppet":
-		result, err := RunRuby(opts)
-		fmt.Print(result)
-		return err
-	default:
-		return ErrInvalidPlatform
-	}
 }
 
 func Enter(basePath string, platform string, version string) error {

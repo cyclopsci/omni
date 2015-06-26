@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"path"
 
 	"github.com/cyclopsci/omni"
 	"github.com/spf13/cobra"
@@ -11,8 +10,6 @@ import (
 
 var (
 	ErrMissingRequiredArgs = errors.New("Missing required arguments")
-	ErrInvalidPlatform     = errors.New("Invalid Platform")
-	ErrInvalidVersion      = errors.New("Invalid Version")
 )
 
 var (
@@ -33,13 +30,14 @@ func main() {
 		Use:   "enter [platform] [version]",
 		Short: "Print commands to enter an execution environment",
 		Run: func(cmd *cobra.Command, args []string) {
-			err := argsEnter(args)
-			if err != nil {
-				fmt.Println(err)
+			if len(args) < 2 {
+				fmt.Println(ErrMissingRequiredArgs)
 				cmd.Usage()
 				return
 			}
-			activateVersion(args[0], args[1])
+			if err := omni.Enter(platformBase, args[0], args[1]); err != nil {
+				fmt.Println(err)
+			}
 		},
 	}
 
@@ -47,8 +45,12 @@ func main() {
 		Use:   "exec [platform] [version] [command...]",
 		Short: "Run a command within one or more environments, avoiding the need to `omni enter|exit`",
 		Run: func(cmd *cobra.Command, args []string) {
-			err := omni.Run(platformBase, args[0], args[1], args[2:])
-			if err != nil {
+			if len(args) < 3 {
+				fmt.Println(ErrMissingRequiredArgs)
+				cmd.Usage()
+				return
+			}
+			if err := omni.Run(platformBase, args[0], args[1], args[2:]); err != nil {
 				fmt.Println(err)
 			}
 		},
@@ -58,8 +60,7 @@ func main() {
 		Use:   "exit",
 		Short: "Exit an execution environment",
 		Run: func(cmd *cobra.Command, args []string) {
-			err := omni.Exit()
-			if err != nil {
+			if err := omni.Exit(); err != nil {
 				fmt.Println(err)
 			}
 		},
@@ -69,17 +70,13 @@ func main() {
 		Use:   "install",
 		Short: "Install a new platform version",
 		Run: func(cmd *cobra.Command, args []string) {
-			err := argsInstall(args)
-			if err != nil {
-				fmt.Println(err)
+			if len(args) < 2 {
+				fmt.Println(ErrMissingRequiredArgs)
 				cmd.Usage()
 				return
 			}
-			err = omni.InstallPlatform(platformBase, args[0], args[1])
-			if err != nil {
+			if err := omni.InstallPlatform(platformBase, args[0], args[1]); err != nil {
 				fmt.Println(err)
-				cmd.Usage()
-				return
 			}
 		},
 	}
@@ -112,43 +109,4 @@ func main() {
 	root.PersistentFlags().StringVarP(&output, "out-file", "o", "", "Write output to file in addition to STDOUT")
 
 	root.Execute()
-}
-
-func argsEnter(args []string) error {
-	if len(args) < 2 {
-		return ErrMissingRequiredArgs
-	}
-	p := args[0]
-	v := args[1]
-
-	platforms, _ := omni.GetPlatforms(platformBase)
-	for _, platform := range platforms {
-		if platform.Label == p {
-			for _, version := range platform.Versions {
-				if version.Label == v {
-					return nil
-				}
-			}
-			return ErrInvalidVersion
-		}
-	}
-
-	return ErrInvalidPlatform
-}
-
-func activateVersion(platform string, version string) {
-	absPath := path.Join(platformBase, platform, version)
-	switch platform {
-	case "puppet":
-		omni.EnterRuby(absPath)
-	case "ansible":
-		omni.EnterPython(absPath)
-	}
-}
-
-func argsInstall(args []string) error {
-	if len(args) < 2 {
-		return ErrMissingRequiredArgs
-	}
-	return nil
 }

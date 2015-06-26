@@ -45,6 +45,15 @@ func Run(basePath string, platform string, version string, command []string) err
 	}
 }
 
+func Enter(basePath string, platform string, version string) error {
+	absPath := path.Join(basePath, platform, version)
+	switch platform {
+	case "puppet":
+		return EnterRuby(absPath)
+	}
+	return ErrInvalidPlatform
+}
+
 func Exit() error {
 	err := ExitRuby()
 	return err

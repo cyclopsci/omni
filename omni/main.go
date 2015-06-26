@@ -17,6 +17,8 @@ var (
 	platformBase = ".omni/platforms"
 	format       = "text"
 	output       = ""
+	execPlatform = ""
+	execVersion  = "latest"
 )
 
 func main() {
@@ -45,16 +47,18 @@ func main() {
 		Use:   "exec [platform] [version] [command...]",
 		Short: "Run a command within one or more environments, avoiding the need to `omni enter|exit`",
 		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) < 3 {
+			if len(args) < 1 {
 				fmt.Println(ErrMissingRequiredArgs)
 				cmd.Usage()
 				return
 			}
-			if err := omni.Run(platformBase, args[0], args[1], args[2:]); err != nil {
+			if err := omni.Run(platformBase, execPlatform, execVersion, args); err != nil {
 				fmt.Println(err)
 			}
 		},
 	}
+	cmdExec.Flags().StringVarP(&execPlatform, "platform", "p", "", "Platform to exec against")
+	cmdExec.Flags().StringVarP(&execVersion, "version", "v", "latest", "Comma separated list of versions to exec against or one of: all|latest")
 
 	cmdExit := &cobra.Command{
 		Use:   "exit",
@@ -104,7 +108,7 @@ func main() {
 		cmdInstall,
 	)
 
-	root.PersistentFlags().StringVarP(&platformBase, "platform-path", "p", ".omni/platforms", "Directory to store platform environments")
+	root.PersistentFlags().StringVarP(&platformBase, "platform-dir", "d", ".omni/platforms", "Directory to store platform environments")
 	root.PersistentFlags().StringVarP(&format, "format", "f", "text", "Output format: [text|json]")
 	root.PersistentFlags().StringVarP(&output, "out-file", "o", "", "Write output to file in addition to STDOUT")
 

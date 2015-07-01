@@ -3,6 +3,7 @@ package omni
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"path"
 )
 
@@ -70,20 +71,29 @@ func doExec(basePath string, platform string, version string, command []string, 
 }
 
 func writeOutput(results []ExecResult, opts ExecOptions) error {
+	out := ""
 	switch opts.Format {
 	case "json":
-		out, err := json.Marshal(results)
+		result, err := json.Marshal(results)
 		if err != nil {
 			return err
 		}
-		fmt.Println(string(out))
+		out = string(result)
 	case "text":
 		for _, result := range results {
-			fmt.Print(result)
+			out += result.Log
 		}
-		return nil
 	default:
 		return ErrInvalidFormat
+	}
+
+	switch opts.Output {
+	case "":
+		fmt.Print(out)
+	default:
+		if err := ioutil.WriteFile(opts.Output, []byte(out), 0755); err != nil {
+			return err
+		}
 	}
 	return nil
 }

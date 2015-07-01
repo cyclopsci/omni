@@ -13,10 +13,13 @@ func verifyRubySupport() (string, error) {
 }
 
 func EnterRuby(path string) error {
-	orig := os.Getenv("PATH")
-	fmt.Printf("export OMNI_ORIG_PATH=%s\n", orig)
+	origPath := os.Getenv("OMNI_ORIG_PATH")
+	if origPath == "" {
+		origPath = os.Getenv("PATH")
+		fmt.Printf("export OMNI_ORIG_PATH=%s\n", origPath)
+	}
+	fmt.Printf("export PATH=%s/bin:%s\n", path, origPath)
 	fmt.Printf("export BUNDLE_GEMFILE=%s/Gemfile\n", path)
-	fmt.Printf("export PATH=%s/bin:%s\n", path, orig)
 	return nil
 }
 
